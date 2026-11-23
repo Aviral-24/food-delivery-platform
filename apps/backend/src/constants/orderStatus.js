@@ -1,0 +1,27 @@
+export const ORDER_STATUS = Object.freeze({
+  PENDING: "pending",
+  CONFIRMED: "confirmed",
+  PREPARING: "preparing",
+  READY_FOR_PICKUP: "ready_for_pickup",
+  PICKED_UP: "picked_up",
+  DELIVERED: "delivered",
+  CANCELLED: "cancelled",
+  REFUNDED: "refunded",
+});
+
+export const ORDER_TRANSITIONS = Object.freeze({
+  [ORDER_STATUS.PENDING]: [ORDER_STATUS.CONFIRMED, ORDER_STATUS.CANCELLED],
+  [ORDER_STATUS.CONFIRMED]: [ORDER_STATUS.PREPARING, ORDER_STATUS.CANCELLED],
+  [ORDER_STATUS.PREPARING]: [
+    ORDER_STATUS.READY_FOR_PICKUP,
+    ORDER_STATUS.CANCELLED,
+  ],
+  [ORDER_STATUS.READY_FOR_PICKUP]: [ORDER_STATUS.PICKED_UP],
+  [ORDER_STATUS.PICKED_UP]: [ORDER_STATUS.DELIVERED],
+  [ORDER_STATUS.DELIVERED]: [ORDER_STATUS.REFUNDED],
+  [ORDER_STATUS.CANCELLED]: [ORDER_STATUS.REFUNDED],
+  [ORDER_STATUS.REFUNDED]: [],
+});
+
+export const canTransitionOrder = (fromStatus, toStatus) =>
+  (ORDER_TRANSITIONS[fromStatus] || []).includes(toStatus);

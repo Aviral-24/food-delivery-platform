@@ -1,0 +1,32 @@
+export const restaurantsData = [
+  {
+    id: "rest-1",
+    name: "Spice Route Kitchen",
+    cuisine: ["North Indian", "Mughlai"],
+    city: "Indore",
+    rating: 4.5,
+    avgCostForTwo: 600,
+    deliveryTimeMins: 30,
+    isOpen: true,
+  },
+  {
+    id: "rest-2",
+    name: "Dakshin Express",
+    cuisine: ["South Indian"],
+    city: "Indore",
+    rating: 4.3,
+    avgCostForTwo: 350,
+    deliveryTimeMins: 25,
+    isOpen: true,
+  },
+  {
+    id: "rest-3",
+    name: "Wok & Bowl",
+    cuisine: ["Chinese", "Asian"],
+    city: "Indore",
+    rating: 4.2,
+    avgCostForTwo: 500,
+    deliveryTimeMins: 35,
+    isOpen: false,
+  },
+];
