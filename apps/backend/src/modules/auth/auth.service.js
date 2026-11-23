@@ -1,60 +1,99 @@
-import crypto from "node:crypto";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { env } from "../../config/env.js";
-import { ApiError } from "../../utils/ApiError.js";
-import { authStore } from "./auth.store.js";
-
-const signToken = (user) =>
-  jwt.sign(
-    { sub: user.id, email: user.email, role: user.role },
-    env.JWT_SECRET,
-    { expiresIn: env.JWT_EXPIRES_IN },
-  );
-
-const sanitizeUser = ({ passwordHash, ...safeUser }) => safeUser;
+import { supabaseAdmin, supabaseAnon } from '../../config/supabase.js';
+import { profilesQueries } from '../../db/queries/profiles.queries.js';
+import { ApiError } from '../../utils/ApiError.js';
 
 export const authService = {
   async register({ name, email, password, role }) {
-    const existing = authStore.findByEmail(email);
-    if (existing) {
-      throw new ApiError(409, "Email is already registered");
-    }
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = authStore.create({
-      id: crypto.randomUUID(),
-      name,
+    const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
       email,
-      role,
-      passwordHash,
-      createdAt: new Date().toISOString(),
+      password,
+      email_confirm: true,
+      user_metadata: { name },
+      app_metadata: { role },
     });
 
-    const token = signToken(user);
-    return { user: sanitizeUser(user), token };
+    if (createErr) {
+      const status = createErr.message.toLowerCase().includes('already') ? 409 : 400;
+      throw new ApiError(status, createErr.message);
+    }
+
+    const { data: sessionData, error: loginErr } = await supabaseAnon.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (loginErr || !sessionData.session) {
+      throw new ApiError(500, loginErr?.message || 'Failed to issue session');
+    }
+
+    return {
+      user: {
+        id: created.user.id,
+        name,
+        email: created.user.email,
+        role,
+      },
+      token: sessionData.session.access_token,
+      refreshToken: sessionData.session.refresh_token,
+    };
   },
 
   async login({ email, password }) {
-    const user = authStore.findByEmail(email);
-    if (!user) {
-      throw new ApiError(401, "Invalid email or password");
+    const { data, error } = await supabaseAnon.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error || !data.session) {
+      throw new ApiError(401, 'Invalid email or password');
     }
 
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      throw new ApiError(401, "Invalid email or password");
-    }
+    const userContext = {
+      id: data.user.id,
+      email: data.user.email,
+      role: data.user.app_metadata?.role || 'customer',
+    };
 
-    const token = signToken(user);
-    return { user: sanitizeUser(user), token };
+    const profile = await profilesQueries.findById(userContext, userContext.id);
+
+    return {
+      user: profile || userContext,
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+    };
   },
 
-  getProfile(userId) {
-    const user = authStore.findById(userId);
-    if (!user) {
-      throw new ApiError(404, "User not found");
+  async sendPhoneOtp({ phone }) {
+    const { error } = await supabaseAnon.auth.signInWithOtp({ phone });
+    if (error) throw new ApiError(400, error.message);
+    return { phone, sent: true };
+  },
+
+  async verifyPhoneOtp({ phone, token }) {
+    const { data, error } = await supabaseAnon.auth.verifyOtp({
+      phone,
+      token,
+      type: 'sms',
+    });
+    if (error || !data.session) {
+      throw new ApiError(401, error?.message || 'Invalid OTP');
     }
-    return sanitizeUser(user);
+    return {
+      user: {
+        id: data.user.id,
+        phone: data.user.phone,
+        role: data.user.app_metadata?.role || 'customer',
+      },
+      token: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+    };
+  },
+
+  async getProfile(user) {
+    const profile = await profilesQueries.findById(user, user.id);
+    if (!profile) {
+      throw new ApiError(404, 'Profile not found');
+    }
+    return profile;
   },
 };
