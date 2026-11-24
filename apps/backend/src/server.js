@@ -1,25 +1,42 @@
-import { startTracing, stopTracing } from "./config/tracing.js";
-import { env } from "./config/env.js";
-import { logger } from "./config/logger.js";
-import app from "./app.js";
+import { initTelemetry, shutdownTelemetry } from './config/otel.js';
 
-startTracing();
+initTelemetry();
 
-const server = app.listen(env.PORT, () => {
+import app from './app.js';
+import { env } from './config/env.js';
+import { logger } from './config/logger.js';
+import { closePool } from './db/client.js';
+import { startOutboxRelay, stopOutboxRelay } from './outbox/outbox.relay.js';
+import {
+  startOrderPlacedConsumer,
+  stopOrderPlacedConsumer,
+} from './events/consumers/orderPlaced.consumer.js';
+import { disconnectKafka } from './events/kafka.client.js';
+
+const server = app.listen(env.PORT, async () => {
   logger.info(
-    { port: env.PORT, env: env.NODE_ENV },
-    `Server running on http://localhost:${env.PORT} (Docs: /api-docs)`,
+    { port: env.PORT, env: env.NODE_ENV, otel: env.OTEL_ENABLED },
+    `Server running on http://localhost:${env.PORT} (Docs: /api-docs)`
   );
+
+  if (env.NODE_ENV !== 'test') {
+    await startOutboxRelay();
+    await startOrderPlacedConsumer();
+  }
 });
 
-const shutdown = (signal) => {
-  logger.info({ signal }, "Shutdown signal received");
+const shutdown = async (signal) => {
+  logger.info({ signal }, 'Shutting down server gracefully');
+  stopOutboxRelay();
+  await stopOrderPlacedConsumer();
+  await disconnectKafka();
+
   server.close(async () => {
-    await stopTracing();
-    logger.info("HTTP server closed");
+    await closePool();
+    await shutdownTelemetry();
     process.exit(0);
   });
 };
 
-process.on("SIGINT", () => shutdown("SIGINT"));
-process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));

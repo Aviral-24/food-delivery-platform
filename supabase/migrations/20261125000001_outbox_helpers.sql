@@ -1,4 +1,4 @@
-20261125000001_outbox_helpers.sqlALTER TABLE public.outbox_events
+ALTER TABLE public.outbox_events
   ADD COLUMN IF NOT EXISTS retry_count INT NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS last_error TEXT,
   ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ;
@@ -7,8 +7,6 @@ CREATE INDEX IF NOT EXISTS idx_outbox_pending
   ON public.outbox_events (created_at ASC)
   WHERE status = 'pending';
 
--- Allows backend transactions under withRls() to safely enqueue domain events
--- while keeping direct INSERT on outbox_events blocked by RLS.
 CREATE OR REPLACE FUNCTION public.enqueue_outbox_event(
   p_aggregate_type TEXT,
   p_aggregate_id UUID,
