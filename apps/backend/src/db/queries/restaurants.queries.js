@@ -47,6 +47,7 @@ export const restaurantsQueries = {
   },
 
   async findById(user, id) {
+    
     return withRls(user, async (client) => {
       const { rows } = await client.query(
         `SELECT
@@ -63,6 +64,18 @@ export const restaurantsQueries = {
     });
   },
 
+  async listMenu(user, restaurantId) {
+  return withRls(user, async (client) => {
+    const { rows } = await client.query(
+      `SELECT id, restaurant_id, name, description, price, is_veg, is_available, created_at
+       FROM public.menu_items
+       WHERE restaurant_id = $1
+       ORDER BY name ASC`,
+      [restaurantId]
+    );
+    return rows;
+  });
+},
   async create(user, payload) {
     return withRls(user, async (client) => {
       const hasCoords = payload.lat !== undefined && payload.lng !== undefined;
