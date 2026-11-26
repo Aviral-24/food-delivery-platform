@@ -1,0 +1,47 @@
+{
+  "app": {
+    "brand": "SwadExpress",
+    "skipToContent": "Skip to main content"
+  },
+  "nav": {
+    "home": "Restaurants",
+    "dashboard": "My Profile",
+    "login": "Login",
+    "register": "Sign Up",
+    "logout": "Logout",
+    "toggleTheme": "Toggle dark mode",
+    "switchLang": "Switch language to Hindi"
+  },
+  "home": {
+    "title": "Fresh food delivered fast in Indore",
+    "subtitle": "Connected live to Supabase PostGIS & Node.js API",
+    "searchPlaceholder": "Search restaurants by name...",
+    "open": "Open",
+    "closed": "Closed",
+    "costForTwo": "₹{{amount}} for two",
+    "mins": "{{mins}} mins",
+    "loading": "Loading restaurants...",
+    "empty": "No restaurants matched your search.",
+    "error": "Could not load restaurants. Make sure backend is running on port 5000."
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "registerTitle": "Create your account",
+    "name": "Full Name",
+    "email": "Email Address",
+    "password": "Password",
+    "role": "Account Role",
+    "submitLogin": "Sign In",
+    "submitRegister": "Create Account",
+    "submitting": "Please wait...",
+    "noAccount": "New here?",
+    "haveAccount": "Already have an account?"
+  },
+  "dashboard": {
+    "title": "My Account",
+    "verifiedNotice": "Authenticated via Supabase JWT & protected by Postgres RLS",
+    "roleLabel": "Role",
+    "emailLabel": "Email",
+    "userIdLabel": "User ID"
+  }
+}

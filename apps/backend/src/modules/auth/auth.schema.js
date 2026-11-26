@@ -1,6 +1,14 @@
 import { z } from 'zod';
 import { ROLES } from '../../constants/roles.js';
 
+const phoneField = z
+  .string()
+  .trim()
+  .transform((val) => val.replace(/[\s-]+/g, ''))
+  .pipe(
+    z.string().regex(/^\+?\d{10,15}$/, 'Enter a valid 10-digit or E.164 phone number')
+  );
+
 export const registerSchema = z.object({
   body: z.object({
     name: z.string().trim().min(2, 'Name must be at least 2 characters'),
@@ -22,13 +30,19 @@ export const loginSchema = z.object({
 
 export const phoneOtpSendSchema = z.object({
   body: z.object({
-    phone: z.string().trim().min(10, 'Valid phone with country code required (e.g. +919999999999)'),
+    phone: phoneField,
   }),
 });
 
 export const phoneOtpVerifySchema = z.object({
-  body: z.object({
-    phone: z.string().trim().min(10),
-    token: z.string().trim().length(6, 'OTP must be 6 digits'),
-  }),
+  body: z
+    .object({
+      phone: phoneField,
+      token: z.string().trim().length(6, 'OTP must be 6 digits').optional(),
+      otp: z.string().trim().length(6, 'OTP must be 6 digits').optional(),
+    })
+    .refine((data) => Boolean(data.token || data.otp), {
+      message: '6-digit OTP is required',
+      path: ['token'],
+    }),
 });

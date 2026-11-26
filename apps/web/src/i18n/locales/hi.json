@@ -1,0 +1,47 @@
+{
+  "app": {
+    "brand": "स्वादएक्सप्रेस",
+    "skipToContent": "मुख्य सामग्री पर जाएँ"
+  },
+  "nav": {
+    "home": "रेस्टोरेंट",
+    "dashboard": "मेरी प्रोफ़ाइल",
+    "login": "लॉगिन",
+    "register": "साइन अप",
+    "logout": "लॉगआउट",
+    "toggleTheme": "डार्क मोड बदलें",
+    "switchLang": "भाषा अंग्रेज़ी करें"
+  },
+  "home": {
+    "title": "इंदौर में ताज़ा खाना, तेज़ डिलीवरी",
+    "subtitle": "Supabase PostGIS और Node.js API से लाइव जुड़ा हुआ",
+    "searchPlaceholder": "नाम से रेस्टोरेंट खोजें...",
+    "open": "खुला है",
+    "closed": "बंद है",
+    "costForTwo": "दो लोगों के लिए ₹{{amount}}",
+    "mins": "{{mins}} मिनट",
+    "loading": "रेस्टोरेंट लोड हो रहे हैं...",
+    "empty": "आपकी खोज से कोई रेस्टोरेंट नहीं मिला।",
+    "error": "रेस्टोरेंट लोड नहीं हो सके। चेक करें कि बैकएंड पोर्ट 5000 पर चल रहा है।"
+  },
+  "auth": {
+    "loginTitle": "वापस स्वागत है",
+    "registerTitle": "नया अकाउंट बनाएँ",
+    "name": "पूरा नाम",
+    "email": "ईमेल पता",
+    "password": "पासवर्ड",
+    "role": "अकाउंट भूमिका",
+    "submitLogin": "लॉगिन करें",
+    "submitRegister": "अकाउंट बनाएँ",
+    "submitting": "कृपया प्रतीक्षा करें...",
+    "noAccount": "नए यूज़र हैं?",
+    "haveAccount": "पहले से अकाउंट है?"
+  },
+  "dashboard": {
+    "title": "मेरा अकाउंट",
+    "verifiedNotice": "Supabase JWT से सत्यापित और Postgres RLS द्वारा सुरक्षित",
+    "roleLabel": "भूमिका",
+    "emailLabel": "ईमेल",
+    "userIdLabel": "यूज़र आईडी"
+  }
+}

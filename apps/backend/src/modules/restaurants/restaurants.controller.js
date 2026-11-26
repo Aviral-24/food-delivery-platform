@@ -20,3 +20,8 @@ export const updateRestaurant = asyncHandler(async (req, res) => {
   const restaurant = await restaurantsService.update(req.params.id, req.body, req.user);
   res.status(200).json({ success: true, message: 'Restaurant updated', data: restaurant });
 });
+
+export const getRestaurantMenu = asyncHandler(async (req, res) => {
+  const items = await restaurantsService.getMenu(req.params.id, req.user || null);
+  res.status(200).json({ success: true, count: items.length, data: items });
+});

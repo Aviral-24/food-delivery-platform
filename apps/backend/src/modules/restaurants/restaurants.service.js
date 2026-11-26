@@ -6,6 +6,11 @@ export const restaurantsService = {
     return restaurantsQueries.list(user, query);
   },
 
+  async getMenu(restaurantId, user = null) {
+  await this.getById(restaurantId, user);
+  return restaurantsQueries.listMenu(user, restaurantId);
+},
+
   async getById(id, user = null) {
     const restaurant = await restaurantsQueries.findById(user, id);
     if (!restaurant) {

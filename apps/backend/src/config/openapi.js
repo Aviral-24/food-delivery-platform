@@ -164,5 +164,61 @@ export const openApiSpec = {
         },
       },
     },
+    '/restaurants/{id}/menu': {
+      get: {
+        tags: ['Restaurants'],
+        summary: 'List menu items for a restaurant',
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+        responses: { 200: { description: 'Menu items list' }, 404: { description: 'Restaurant not found' } },
+      },
+    },
+    '/orders': {
+      get: {
+        tags: ['Orders'],
+        summary: 'List orders visible to authenticated user (RLS enforced)',
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: 'Orders list' }, 401: { description: 'Unauthorized' } },
+      },
+      post: {
+        tags: ['Orders'],
+        summary: 'Place a new order and enqueue order.placed outbox event',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['restaurantId', 'items', 'deliveryAddress'],
+                properties: {
+                  restaurantId: { type: 'string', format: 'uuid' },
+                  items: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['menuItemId', 'quantity'],
+                      properties: {
+                        menuItemId: { type: 'string', format: 'uuid' },
+                        quantity: { type: 'integer', minimum: 1 },
+                      },
+                    },
+                  },
+                  deliveryAddress: {
+                    type: 'object',
+                    required: ['street', 'pincode'],
+                    properties: {
+                      street: { type: 'string' },
+                      city: { type: 'string' },
+                      pincode: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: { 201: { description: 'Order placed' }, 400: { description: 'Validation error' } },
+      },
+    },
   },
 };

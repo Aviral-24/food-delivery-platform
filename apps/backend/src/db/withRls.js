@@ -5,6 +5,7 @@ export const withRls = async (user, callback) => {
 
   try {
     await client.query('BEGIN');
+    await client.query('SET LOCAL search_path = public, extensions');
 
     if (user?.id) {
       const claims = {

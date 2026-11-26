@@ -9,5 +9,11 @@
   },
   "scripts": {
     "generate:client": "node ../../apps/backend/scripts/export-openapi.js && openapi-typescript src/generated/openapi.json -o src/generated/api.types.ts"
+  },
+  "dependencies": {
+    "openapi-fetch": "^0.13.4"
+  },
+  "devDependencies": {
+    "openapi-typescript": "^7.6.1"
   }
 }

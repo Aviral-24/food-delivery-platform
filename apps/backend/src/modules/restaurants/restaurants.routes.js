@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   getRestaurants,
   getRestaurantById,
+  getRestaurantMenu,
   createRestaurant,
   updateRestaurant,
 } from './restaurants.controller.js';
@@ -34,6 +35,7 @@ const router = Router();
 
 router.get('/', getRestaurants);
 router.get('/:id', getRestaurantById);
+router.get('/:id/menu', getRestaurantMenu);
 router.post(
   '/',
   authenticate,
